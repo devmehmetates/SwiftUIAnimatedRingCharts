@@ -32,6 +32,12 @@ public struct RingChartsView: View {
     var values: [CGFloat]
     var colors: Array<Array<Color>>
     var ringsMaxValue: CGFloat
+    
+    public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat){
+        self.values = values
+        self.colors = colors ?? []
+        self.ringsMaxValue = ringsMaxValue
+    }
     public var body: some View {
         GeometryReader{ proxy in
             ZStack{
