@@ -13,10 +13,11 @@ private struct RingChartView: View {
                 .foregroundStyle(LinearGradient(colors: colors, startPoint: .trailing, endPoint: .leading))
                 .opacity(0.5)
             Circle()
-                .trim(from: 0, to: ( self.value / ringMaxValue))
-                .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round))
+                .trim(from: 0, to: (self.value / ringMaxValue))
+                .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
                 .rotation(Angle.degrees(270))
                 .foregroundStyle(LinearGradient(colors: colors, startPoint: .trailing, endPoint: .leading))
+               
         }.onAppear{
             let brancValue = self.value
             self.value = 0
@@ -29,9 +30,10 @@ private struct RingChartView: View {
 
 @available(iOS 15.0, *)
 public struct RingChartsView: View {
-    var values: [CGFloat]
-    var colors: Array<Array<Color>>
-    var ringsMaxValue: CGFloat
+    private var pageHelper = Pagehelper()
+    private var values: [CGFloat]
+    private var colors: Array<Array<Color>>
+    private var ringsMaxValue: CGFloat
     
     public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat){
         self.values = values
@@ -42,8 +44,8 @@ public struct RingChartsView: View {
         GeometryReader{ proxy in
             ZStack{
                 ForEach(0..<self.values.count, id: \.self) {
-                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, colors: (colors.count - 1) >= $0 ? (colors[$0]) : [.blue])
-                        .frame(width: ((proxy.size.height) - ((proxy.size.height / 4) * CGFloat($0))), height:((proxy.size.height / 1) - ((proxy.size.height / 4) * CGFloat($0))), alignment: .center)
+                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, colors: self.pageHelper.trueColor(for: colors, count: $0))
+                        .frame(width: self.pageHelper.setSpace(proxy, count: $0), height: self.pageHelper.setSpace(proxy, count: $0), alignment: .center)
                 }
             }
         }
@@ -57,7 +59,7 @@ struct SwiftUIPercentChart_Previews : PreviewProvider {
         
         if #available(iOS 15.0, *) {
             VStack{
-                RingChartsView(values: [90,50], colors: [[.orange, .red]], ringsMaxValue: 400)
+                RingChartsView(values: [1000,500,458,455,33], colors: [[.orange, .red]], ringsMaxValue: 500)
             }.frame(width: 200, height: 200, alignment: .center)
             
         } else {
@@ -66,3 +68,18 @@ struct SwiftUIPercentChart_Previews : PreviewProvider {
     }
 }
 #endif
+
+@available(iOS 15.0, *)
+private struct Pagehelper{
+    func trueColor(for colorList: Array<Array<Color>>, count: Int) -> Array<Color>{
+        if (colorList.count - 1) >= count{
+            return colorList[count]
+        }
+        
+        return [.blue]
+    }
+    
+    func setSpace(_ proxy: GeometryProxy, count: Int) -> CGFloat{
+        return ((proxy.size.height) - (proxy.size.width / (proxy.size.width / 40) * CGFloat(count)))
+    }
+}
