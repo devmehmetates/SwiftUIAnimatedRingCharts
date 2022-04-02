@@ -28,11 +28,11 @@ private struct RingChartView: View {
 }
 
 @available(iOS 15.0, *)
-struct RingChartsView: View {
+public struct RingChartsView: View {
     var values: [CGFloat]
     var colors: Array<Array<Color>>
     var ringsMaxValue: CGFloat
-    var body: some View {
+    public var body: some View {
         GeometryReader{ proxy in
             ZStack{
                 ForEach(0..<self.values.count, id: \.self) {
