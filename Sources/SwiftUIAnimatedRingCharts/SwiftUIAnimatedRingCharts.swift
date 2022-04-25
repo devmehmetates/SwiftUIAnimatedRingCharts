@@ -59,7 +59,7 @@ struct SwiftUIPercentChart_Previews : PreviewProvider {
         
         if #available(iOS 15.0, *) {
             VStack{
-                RingChartsView(values: [1000,500,458,455,33], colors: [[.orange, .red]], ringsMaxValue: 500)
+                RingChartsView(values: [100, 90, 70, 0], colors: [[.orange, .red], [.purple, .indigo], [.green, .teal]], ringsMaxValue: 100)
             }.frame(width: 200, height: 200, alignment: .center)
             
         } else {
@@ -80,6 +80,6 @@ private struct Pagehelper{
     }
     
     func setSpace(_ proxy: GeometryProxy, count: Int) -> CGFloat{
-        return ((proxy.size.height) - (proxy.size.width / (proxy.size.width / 40) * CGFloat(count)))
+        return ((proxy.size.height) - (proxy.size.width / (proxy.size.width / 30) * CGFloat(count)))
     }
 }
