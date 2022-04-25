@@ -32,7 +32,7 @@ private struct RingChartView: View {
 public struct RingChartsView: View {
     private var pageHelper = Pagehelper()
     private var values: [CGFloat]
-    private var colors: Array<Array<Color>>
+    private var colors: Array<Array<Color>>? = []
     private var ringsMaxValue: CGFloat
     
     public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat){
@@ -44,7 +44,7 @@ public struct RingChartsView: View {
         GeometryReader{ proxy in
             ZStack{
                 ForEach(0..<self.values.count, id: \.self) {
-                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, colors: self.pageHelper.trueColor(for: colors, count: $0))
+                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, colors: self.pageHelper.trueColor(for: colors!, count: $0))
                         .frame(width: self.pageHelper.setSpace(proxy, count: $0), height: self.pageHelper.setSpace(proxy, count: $0), alignment: .center)
                 }
             }
@@ -59,7 +59,7 @@ struct SwiftUIPercentChart_Previews : PreviewProvider {
         
         if #available(iOS 15.0, *) {
             VStack{
-                RingChartsView(values: [100, 90, 70, 0], colors: [[.orange, .red], [.purple, .indigo], [.green, .teal]], ringsMaxValue: 100)
+                RingChartsView(values: [100, 90, 70, 0], colors: nil, ringsMaxValue: 100)
             }.frame(width: 200, height: 200, alignment: .center)
             
         } else {
