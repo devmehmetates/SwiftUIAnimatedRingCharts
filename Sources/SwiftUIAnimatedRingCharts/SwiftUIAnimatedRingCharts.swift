@@ -12,12 +12,22 @@ private struct RingChartView: View {
                 .stroke(lineWidth: 10)
                 .foregroundStyle(LinearGradient(colors: colors, startPoint: .trailing, endPoint: .leading))
                 .opacity(0.5)
-            Circle()
-                .trim(from: 0, to: (self.value / ringMaxValue))
-                .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
-                .rotation(Angle.degrees(270))
-                .foregroundStyle(LinearGradient(colors: colors, startPoint: .trailing, endPoint: .leading))
-               
+            ZStack(alignment: .top) {
+                Circle()
+                    .trim(from: 0, to: (self.value / ringMaxValue))
+                    .stroke( style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round)
+                    )
+                    .rotation(Angle.degrees(-90))
+                    .foregroundStyle(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top))
+                    
+                Circle()
+                    .frame(width: 10, height: 10, alignment: .center)
+                    .offset(y: -5)
+                    .foregroundColor(colors.count >= 2 ? colors[1]: colors[0])
+                    .shadow(color: self.value > (self.value / ringMaxValue) ? Color.black.opacity(0.3): Color.clear, radius: 3, x: 5, y: 0)
+                    .opacity((self.value / ringMaxValue) > 0.99 ? 1 : 0)
+            }
+            
         }.onAppear{
             let brancValue = self.value
             self.value = 0
@@ -59,7 +69,7 @@ struct SwiftUIPercentChart_Previews : PreviewProvider {
         
         if #available(iOS 15.0, *) {
             VStack{
-                RingChartsView(values: [100, 90, 70, 0], colors: nil, ringsMaxValue: 100)
+                RingChartsView(values: [97, 250, 70, 10], colors: [[.orange]], ringsMaxValue: 100)
             }.frame(width: 200, height: 200, alignment: .center)
             
         } else {
@@ -76,7 +86,7 @@ private struct Pagehelper{
             return colorList[count]
         }
         
-        return [.blue]
+        return [.blue, .blue]
     }
     
     func setSpace(_ proxy: GeometryProxy, count: Int) -> CGFloat{
