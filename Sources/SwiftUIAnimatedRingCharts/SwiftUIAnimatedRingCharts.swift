@@ -2,9 +2,30 @@ import SwiftUI
 
 @available(iOS 15.0, *)
 private struct RingChartView: View {
-    @State var value: CGFloat
+    @State private var overloadXOffset: CGFloat = 0
+    @State private var overloadYOffset: CGFloat = -5
+    @State private var animateValue: CGFloat = 0
+    let value: CGFloat
     var ringMaxValue: CGFloat
     var colors: [Color]
+    var overloadColors: [[Color]] {
+        var lastColor: Color = colors.last ?? .blue
+        var branchArray: [Color] = []
+        var colorArray: [[Color]] = []
+        
+        for constant in 1...Int((self.value / ringMaxValue).rounded(.up)) {
+            let firstAppendColor = lastColor.adjust(hue: 0.0 * CGFloat(constant), saturation: 0, brightness: 0, opacity: 0)
+            let secondAppendColor = firstAppendColor.adjust(hue: 0.001 * CGFloat(constant), saturation: 0, brightness: 0.08, opacity: 0)
+            
+            branchArray.append(firstAppendColor)
+            branchArray.append(secondAppendColor)
+            colorArray.append(branchArray)
+            lastColor = branchArray.last ?? .blue
+            branchArray.removeAll()
+        }
+        return colorArray
+    }
+    
     
     var body: some View {
         ZStack{
@@ -13,26 +34,32 @@ private struct RingChartView: View {
                 .foregroundStyle(LinearGradient(colors: colors, startPoint: .trailing, endPoint: .leading))
                 .opacity(0.5)
             ZStack(alignment: .top) {
+                
                 Circle()
-                    .trim(from: 0, to: (self.value / ringMaxValue))
-                    .stroke( style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round)
-                    )
+                    .trim(from: 0, to: (self.animateValue / ringMaxValue))
+                    .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
                     .rotation(Angle.degrees(-90))
                     .foregroundStyle(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top))
+                
+                let count: Int = Int((self.value / ringMaxValue).rounded(.up))
+                
+                if count > 1 {
+                    ForEach (1..<count, id: \.self) { circleValue in
+                        Circle()
+                            .trim(from: 0, to: ((self.animateValue - ringMaxValue * CGFloat(circleValue)) / ringMaxValue))
+                            .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
+                            .rotation(Angle.degrees(-90))
+                            .foregroundStyle(LinearGradient(colors: circleValue < overloadColors.count ? overloadColors[circleValue] : colors, startPoint: .bottom, endPoint: .top))
+                    }
                     
-                Circle()
-                    .frame(width: 10, height: 10, alignment: .center)
-                    .offset(y: -5)
-                    .foregroundColor(colors.count >= 2 ? colors[1]: colors[0])
-                    .shadow(color: self.value > (self.value / ringMaxValue) ? Color.black.opacity(0.3): Color.clear, radius: 3, x: 5, y: 0)
-                    .opacity((self.value / ringMaxValue) > 0.99 ? 1 : 0)
+                }
             }
+                
             
         }.onAppear{
-            let brancValue = self.value
-            self.value = 0
+            self.animateValue = 0
             withAnimation(.easeInOut(duration: 2)) {
-                self.value = brancValue
+                self.animateValue = value
             }
         }
     }
@@ -69,7 +96,7 @@ struct SwiftUIPercentChart_Previews : PreviewProvider {
         
         if #available(iOS 15.0, *) {
             VStack{
-                RingChartsView(values: [97, 250, 70, 10], colors: [[.orange]], ringsMaxValue: 100)
+                RingChartsView(values: [100, 950, 70, 10], colors: [[.purple, .orange], [.red, .indigo]], ringsMaxValue: 100)
             }.frame(width: 200, height: 200, alignment: .center)
             
         } else {
@@ -91,5 +118,22 @@ private struct Pagehelper{
     
     func setSpace(_ proxy: GeometryProxy, count: Int) -> CGFloat{
         return ((proxy.size.height) - (proxy.size.width / (proxy.size.width / 30) * CGFloat(count)))
+    }
+}
+
+@available(iOS 13.0, *)
+extension Color {
+    @available(iOS 14.0, *)
+    func adjust(hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, opacity: CGFloat = 1) -> Color {
+        let color = UIColor(self)
+        var currentHue: CGFloat = 0
+        var currentSaturation: CGFloat = 0
+        var currentBrigthness: CGFloat = 0
+        var currentOpacity: CGFloat = 0
+
+        if color.getHue(&currentHue, saturation: &currentSaturation, brightness: &currentBrigthness, alpha: &currentOpacity) {
+            return Color(hue: currentHue + hue, saturation: currentSaturation + saturation, brightness: currentBrigthness + brightness, opacity: currentOpacity + opacity)
+        }
+        return self
     }
 }
