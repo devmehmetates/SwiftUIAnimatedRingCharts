@@ -7,6 +7,7 @@ private struct RingChartView: View {
     @State private var animateValue: CGFloat = 0
     let value: CGFloat
     var ringMaxValue: CGFloat
+    var lineWidth: CGFloat
     var colors: [Color]
     var overloadColors: [[Color]] {
         var lastColor: Color = colors.last ?? .blue
@@ -30,14 +31,14 @@ private struct RingChartView: View {
     var body: some View {
         ZStack{
             Circle()
-                .stroke(lineWidth: 10)
+                .stroke(lineWidth: lineWidth)
                 .foregroundStyle(LinearGradient(colors: colors, startPoint: .trailing, endPoint: .leading))
                 .opacity(0.5)
             ZStack(alignment: .top) {
                 
                 Circle()
                     .trim(from: 0, to: (self.animateValue / ringMaxValue))
-                    .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
+                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                     .rotation(Angle.degrees(-90))
                     .foregroundStyle(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top))
                 
@@ -47,7 +48,7 @@ private struct RingChartView: View {
                     ForEach (1..<count, id: \.self) { circleValue in
                         Circle()
                             .trim(from: 0, to: ((self.animateValue - ringMaxValue * CGFloat(circleValue)) / ringMaxValue))
-                            .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
+                            .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                             .rotation(Angle.degrees(-90))
                             .foregroundStyle(LinearGradient(colors: circleValue < overloadColors.count ? overloadColors[circleValue] : colors, startPoint: .bottom, endPoint: .top))
                     }
@@ -71,17 +72,19 @@ public struct RingChartsView: View {
     private var values: [CGFloat]
     private var colors: Array<Array<Color>>? = []
     private var ringsMaxValue: CGFloat
+    private var lineWidth: CGFloat
     
-    public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat){
+    public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat, lineWidth: CGFloat? = nil){
         self.values = values
         self.colors = colors ?? []
         self.ringsMaxValue = ringsMaxValue
+        self.lineWidth = lineWidth ?? 10.0
     }
     public var body: some View {
         GeometryReader{ proxy in
             ZStack{
                 ForEach(0..<self.values.count, id: \.self) {
-                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, colors: self.pageHelper.trueColor(for: colors!, count: $0))
+                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, lineWidth: lineWidth, colors: self.pageHelper.trueColor(for: colors!, count: $0))
                         .frame(width: self.pageHelper.setSpace(proxy, count: $0), height: self.pageHelper.setSpace(proxy, count: $0), alignment: .center)
                 }
             }
