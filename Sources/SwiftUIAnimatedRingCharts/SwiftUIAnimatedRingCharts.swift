@@ -9,6 +9,7 @@ private struct RingChartView: View {
     var ringMaxValue: CGFloat
     var lineWidth: CGFloat
     var colors: [Color]
+    var isAnimated: Bool
     var overloadColors: [[Color]] {
         var lastColor: Color = colors.last ?? .blue
         var branchArray: [Color] = []
@@ -59,7 +60,12 @@ private struct RingChartView: View {
             
         }.onAppear{
             self.animateValue = 0
-            withAnimation(.easeInOut(duration: 2)) {
+            
+            if isAnimated {
+                withAnimation(.easeInOut(duration: 2)) {
+                    self.animateValue = value
+                }
+            } else {
                 self.animateValue = value
             }
         }
@@ -73,18 +79,20 @@ public struct RingChartsView: View {
     private var colors: Array<Array<Color>>? = []
     private var ringsMaxValue: CGFloat
     private var lineWidth: CGFloat
+    private var isAnimated: Bool
     
-    public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat, lineWidth: CGFloat? = nil){
+    public init(values: [CGFloat], colors: Array<Array<Color>>?, ringsMaxValue: CGFloat, lineWidth: CGFloat? = nil, isAnimated: Bool? = nil){
         self.values = values
         self.colors = colors ?? []
         self.ringsMaxValue = ringsMaxValue
         self.lineWidth = lineWidth ?? 10.0
+        self.isAnimated = isAnimated ?? false
     }
     public var body: some View {
         GeometryReader{ proxy in
             ZStack{
                 ForEach(0..<self.values.count, id: \.self) {
-                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, lineWidth: lineWidth, colors: self.pageHelper.trueColor(for: colors!, count: $0))
+                    RingChartView(value: self.values[$0], ringMaxValue: ringsMaxValue, lineWidth: lineWidth, colors: self.pageHelper.trueColor(for: colors!, count: $0), isAnimated: isAnimated)
                         .frame(width: self.pageHelper.setSpace(proxy, count: $0), height: self.pageHelper.setSpace(proxy, count: $0), alignment: .center)
                 }
             }
