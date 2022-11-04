@@ -19,7 +19,8 @@ RingChartsView(values: [100,900,300], colors: [[.red, .orange], [.purple, .pink]
 |---------------|-----------------------|----------|-------------------------------------------------------|
 | Values        | Array\<CGFloat>       | yes      | The required array for the values in the chart.       |
 | Colors        | Array\<Array\<Color>> | no       | The array of colors specified for the entered arrays. |
-| ringsMaxValue | CGFloat               | yes      | The value against which the values are compared       |
+| ringsMaxValue | CGFloat               | yes      | The value against which the values are compared.      |
+| lineWidth     | CGFloat               | no       | This value sets the width of the charts.              |
 
 ## Tips 
 + Shape the class with the frame. Since it is flexible, it will use all the space it can cover.
